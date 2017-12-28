@@ -14,9 +14,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const ttts = require("@motionpicture/ttts-domain");
 const createDebug = require("debug");
-// import * as moment from 'moment';
+const moment = require("moment");
+// tslint:disable-next-line:no-require-imports no-var-requires
+require('moment-timezone');
 // import * as request from 'request-promise-native';
-// import * as util from 'util';
+const util = require("util");
 const LINE = require("../../../line");
 const debug = createDebug('ttts-line-assistant:controller:webhook:postback');
 const MESSAGE_TRANSACTION_NOT_FOUND = '該当取引はありません';
@@ -28,24 +30,19 @@ const redisClient = ttts.redis.createClient({
     tls: { servername: process.env.REDIS_HOST }
 });
 /**
- * 予約番号で取引を検索する
+ * 購入番号で取引を検索する
  * @export
  * @function
  * @memberof app.controllers.webhook.postback
- * @param {string} userId LINEユーザーID
- * @param {string} reserveNum 予約番号
- * @param {string} theaterCode 劇場コード
  */
-function searchTransactionByReserveNum(userId, reserveNum, theaterCode) {
+function searchTransactionByPaymentNo(userId, paymentNo, performanceDate) {
     return __awaiter(this, void 0, void 0, function* () {
-        debug(userId, reserveNum);
-        yield LINE.pushMessage(userId, '予約番号で検索しています...');
+        yield LINE.pushMessage(userId, `${performanceDate}-${paymentNo}の取引を検索しています...`);
         // 取引検索
         const transactionAdapter = new ttts.repository.Transaction(ttts.mongoose.connection);
         yield transactionAdapter.transactionModel.findOne({
-            // tslint:disable-next-line:no-magic-numbers
-            'result.order.orderInquiryKey.confirmationNumber': parseInt(reserveNum, 10),
-            'result.order.orderInquiryKey.theaterCode': theaterCode
+            'result.order.orderInquiryKey.performanceDay': moment(`${performanceDate}T00:00:00+09:00`).tz('Asia/Tokyo').format('YYYYMMDD'),
+            'result.order.orderInquiryKey.paymentNo': paymentNo
         }, 'result').exec().then((doc) => __awaiter(this, void 0, void 0, function* () {
             if (doc === null) {
                 yield LINE.pushMessage(userId, MESSAGE_TRANSACTION_NOT_FOUND);
@@ -57,23 +54,7 @@ function searchTransactionByReserveNum(userId, reserveNum, theaterCode) {
         }));
     });
 }
-exports.searchTransactionByReserveNum = searchTransactionByReserveNum;
-/**
- * 電話番号で取引を検索する
- * @export
- * @function
- * @memberof app.controllers.webhook.postback
- * @param {string} userId LINEユーザーID
- * @param {string} tel 電話番号
- * @param {string} theaterCode 劇場コード
- */
-function searchTransactionByTel(userId, tel, __) {
-    return __awaiter(this, void 0, void 0, function* () {
-        debug('tel:', tel);
-        yield LINE.pushMessage(userId, 'implementing...');
-    });
-}
-exports.searchTransactionByTel = searchTransactionByTel;
+exports.searchTransactionByPaymentNo = searchTransactionByPaymentNo;
 /**
  * 取引IDから取引情報詳細を送信する
  * @export
@@ -86,7 +67,102 @@ exports.searchTransactionByTel = searchTransactionByTel;
 function pushTransactionDetails(userId, orderNumber) {
     return __awaiter(this, void 0, void 0, function* () {
         yield LINE.pushMessage(userId, `${orderNumber}の取引詳細をまとめています...`);
-        yield LINE.pushMessage(userId, 'implementing...');
+        const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
+        const taskAdapter = new ttts.repository.Task(ttts.mongoose.connection);
+        const transactionAdapter = new ttts.repository.Transaction(ttts.mongoose.connection);
+        // 取引検索
+        const transaction = yield transactionAdapter.transactionModel.findOne({
+            'result.order.orderNumber': orderNumber,
+            typeOf: ttts.factory.transactionType.PlaceOrder
+        }).then((doc) => doc.toObject());
+        const report = ttts.service.transaction.placeOrder.transaction2report(transaction);
+        debug('report:', report);
+        // 返品取引検索
+        const returnOrderTransaction = yield transactionAdapter.transactionModel.findOne({
+            'object.transaction.id': transaction.id,
+            typeOf: ttts.factory.transactionType.ReturnOrder
+        }).then((doc) => (doc === null) ? null : doc.toObject());
+        debug('returnOrderTransaction:', returnOrderTransaction);
+        // 確定取引なので、結果はundefinedではない
+        // const transactionResult = <ttts.factory.transaction.placeOrder.IResult>transaction.result;
+        // const transactionResult = transactionResult.eventReservations.filter(
+        //     (r) => r.status === ttts.factory.reservationStatusType.ReservationConfirmed
+        // );
+        // 予約検索
+        const reservations = yield reservationRepo.reservationModel.find({
+            transaction: transaction.id
+        }).exec().then((docs) => docs.map((doc) => doc.toObject()));
+        debug('reservations:', reservations.length);
+        // 非同期タスク検索
+        const tasks = yield taskAdapter.taskModel.find({
+            'data.transactionId': transaction.id
+        }).exec().then((docs) => docs.map((doc) => doc.toObject()));
+        // タスクの実行日時を調べる
+        let taskStrs = tasks.map((task) => {
+            let taskNameStr = '???';
+            switch (task.name) {
+                case ttts.factory.taskName.SettleSeatReservation:
+                    taskNameStr = '本予約';
+                    break;
+                case ttts.factory.taskName.SettleCreditCard:
+                    taskNameStr = '売上';
+                    break;
+                case ttts.factory.taskName.SendEmailNotification:
+                    taskNameStr = 'メール送信';
+                    break;
+                default:
+                    break;
+            }
+            return util.format('%s %s', (task.status === ttts.factory.taskStatus.Executed && task.lastTriedAt !== null)
+                ? moment(task.lastTriedAt).format('YYYY-MM-DD HH:mm:ss')
+                : '---------- --:--:--', taskNameStr);
+        }).join('\n');
+        if (returnOrderTransaction !== null) {
+            taskStrs += `\n${moment(returnOrderTransaction.endDate).format('YYYY-MM-DD HH:mm:ss')} 返品確定`;
+        }
+        // tslint:disable:max-line-length
+        const transactionDetails = `--------------------
+注文取引概要
+--------------------
+取引ステータス: ${report.status}
+注文ステータス:${(returnOrderTransaction === null) ? ttts.factory.orderStatus.OrderDelivered : ttts.factory.orderStatus.OrderReturned}
+購入番号: ${report.confirmationNumber}
+--------------------
+注文取引状況
+--------------------
+${moment(report.startDate).format('YYYY-MM-DD HH:mm:ss')} 開始
+${moment(report.endDate).format('YYYY-MM-DD HH:mm:ss')} 成立
+${taskStrs}
+--------------------
+購入者情報
+--------------------
+${report.customer.group}
+${report.customer.name}
+${report.customer.telephone}
+${report.customer.email}
+--------------------
+座席予約
+--------------------
+${moment(report.eventStartDate).format('YYYY-MM-DD HH:mm')}-${moment(report.eventEndDate).format('HH:mm')}
+${report.reservedTickets.split('\n').map((str) => `●${str}`).join('\n')}
+--------------------
+決済方法
+--------------------
+${report.paymentMethod}
+${report.paymentMethodId}
+${report.price}
+--------------------
+割引
+--------------------
+${report.discounts}
+${report.discountCodes}
+￥${report.discountPrices}
+--------------------
+予約現状
+--------------------
+${reservations.map((r) => `●${r.seat_code} ${r.status}`).join('\n')}
+`;
+        yield LINE.pushMessage(userId, transactionDetails);
     });
 }
 /**

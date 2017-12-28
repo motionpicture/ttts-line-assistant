@@ -29,19 +29,12 @@ function pushHowToUse(userId) {
         // tslint:disable-next-line:no-multiline-string
         const text = `How to use
 ******** new! ********
-csvの項目が充実しました！
-所有権作成タスクを実行できるようになりました！
 ******** new! ********
 --------------------
 取引照会
 --------------------
-[劇場コード]-[予約番号 or 電話番号]と入力
-例:118-2425
-
---------------------
-取引CSVダウンロード
---------------------
-「csv」と入力`;
+[開演日]-[購入番号]と入力
+例:171228-810000`;
         yield LINE.pushMessage(userId, text);
     });
 }
@@ -93,6 +86,43 @@ function pushButtonsReserveNumOrTel(userId, message) {
     });
 }
 exports.pushButtonsReserveNumOrTel = pushButtonsReserveNumOrTel;
+/**
+ * 予約のイベント日選択を求める
+ * @export
+ * @function
+ * @memberof app.controllers.webhook.message
+ */
+function askReservationEventDate(userId, paymentNo) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield request.post('https://api.line.me/v2/bot/message/push', {
+            auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+            json: true,
+            body: {
+                to: userId,
+                messages: [
+                    {
+                        type: 'template',
+                        altText: '日付選択',
+                        template: {
+                            type: 'buttons',
+                            text: 'ツアーの開演日を教えてください。',
+                            actions: [
+                                {
+                                    type: 'datetimepicker',
+                                    label: '日付選択',
+                                    mode: 'date',
+                                    data: `action=searchTransactionByPaymentNo&paymentNo=${paymentNo}`,
+                                    initial: moment().format('YYYY-MM-DD')
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        });
+    });
+}
+exports.askReservationEventDate = askReservationEventDate;
 /**
  * 日付選択を求める
  * @export

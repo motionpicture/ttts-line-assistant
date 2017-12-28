@@ -21,21 +21,21 @@ export async function message(event: LINE.IWebhookEvent) {
 
     try {
         switch (true) {
-            // [劇場コード]-[予約番号 or 電話番号]で検索
-            case /^\d{3}-\d{1,12}$/.test(messageText):
-                await MessageController.pushButtonsReserveNumOrTel(userId, messageText);
+            // [購入番号]で検索
+            case /^\d{6}$/.test(messageText):
+                await MessageController.askReservationEventDate(userId, messageText);
                 break;
 
             // 取引csv要求
-            case /^csv$/.test(messageText):
-                await MessageController.askFromWhenAndToWhen(userId);
-                break;
+            // case /^csv$/.test(messageText):
+            // await MessageController.askFromWhenAndToWhen(userId);
+            //     break;
 
             // 取引csv期間指定
-            case /^\d{8}-\d{8}$/.test(messageText):
-                // tslint:disable-next-line:no-magic-numbers
-                await MessageController.publishURI4transactionsCSV(userId, messageText.substr(0, 8), messageText.substr(9, 8));
-                break;
+            // case /^\d{8}-\d{8}$/.test(messageText):
+            //     // tslint:disable-next-line:no-magic-numbers
+            //     await MessageController.publishURI4transactionsCSV(userId, messageText.substr(0, 8), messageText.substr(9, 8));
+            //     break;
 
             default:
                 // 予約照会方法をアドバイス
@@ -59,12 +59,9 @@ export async function postback(event: LINE.IWebhookEvent) {
 
     try {
         switch (data.action) {
-            case 'searchTransactionByReserveNum':
-                await PostbackController.searchTransactionByReserveNum(userId, <string>data.reserveNum, <string>data.theater);
-                break;
-
-            case 'searchTransactionByTel':
-                await PostbackController.searchTransactionByTel(userId, <string>data.tel, <string>data.theater);
+            case 'searchTransactionByPaymentNo':
+                // 購入番号と開演日で取引検索
+                await PostbackController.searchTransactionByPaymentNo(userId, <string>data.paymentNo, <string>event.postback.params.date);
                 break;
 
             case 'pushNotification':

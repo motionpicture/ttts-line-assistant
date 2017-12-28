@@ -22,19 +22,12 @@ export async function pushHowToUse(userId: string) {
     // tslint:disable-next-line:no-multiline-string
     const text = `How to use
 ******** new! ********
-csvの項目が充実しました！
-所有権作成タスクを実行できるようになりました！
 ******** new! ********
 --------------------
 取引照会
 --------------------
-[劇場コード]-[予約番号 or 電話番号]と入力
-例:118-2425
-
---------------------
-取引CSVダウンロード
---------------------
-「csv」と入力`;
+[開演日]-[購入番号]と入力
+例:171228-810000`;
 
     await LINE.pushMessage(userId, text);
 }
@@ -86,6 +79,44 @@ export async function pushButtonsReserveNumOrTel(userId: string, message: string
 }
 
 /**
+ * 予約のイベント日選択を求める
+ * @export
+ * @function
+ * @memberof app.controllers.webhook.message
+ */
+export async function askReservationEventDate(userId: string, paymentNo: string) {
+    await request.post(
+        'https://api.line.me/v2/bot/message/push',
+        {
+            auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+            json: true,
+            body: {
+                to: userId, // 送信相手のuserId
+                messages: [
+                    {
+                        type: 'template',
+                        altText: '日付選択',
+                        template: {
+                            type: 'buttons',
+                            text: 'ツアーの開演日を教えてください。',
+                            actions: [
+                                {
+                                    type: 'datetimepicker',
+                                    label: '日付選択',
+                                    mode: 'date',
+                                    data: `action=searchTransactionByPaymentNo&paymentNo=${paymentNo}`,
+                                    initial: moment().format('YYYY-MM-DD')
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    );
+}
+
+/**
  * 日付選択を求める
  * @export
  * @function
@@ -122,7 +153,6 @@ export async function askFromWhenAndToWhen(userId: string) {
             }
         }
     );
-
 }
 
 /**
