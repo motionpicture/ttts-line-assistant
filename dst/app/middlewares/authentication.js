@@ -20,6 +20,11 @@ const LINE = require("../../line");
 const user_1 = require("../user");
 exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     try {
+        // ユーザー認証無効化の設定の場合
+        if (process.env.USER_AUTHENTICATION_DISABLED === '1') {
+            next();
+            return;
+        }
         // RedisからBearerトークンを取り出す
         const event = (req.body.events !== undefined) ? req.body.events[0] : undefined;
         if (event === undefined) {

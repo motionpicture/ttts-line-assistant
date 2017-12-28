@@ -33,8 +33,8 @@ function pushHowToUse(userId) {
 --------------------
 取引照会
 --------------------
-[開演日]-[購入番号]と入力
-例:171228-810000`;
+[購入番号]を入力
+例:810000`;
         yield LINE.pushMessage(userId, text);
     });
 }

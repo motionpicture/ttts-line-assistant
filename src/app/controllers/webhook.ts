@@ -43,7 +43,6 @@ export async function message(event: LINE.IWebhookEvent) {
                 break;
         }
     } catch (error) {
-        console.error(error);
         // エラーメッセージ表示
         await LINE.pushMessage(userId, error.toString());
     }

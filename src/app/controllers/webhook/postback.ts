@@ -8,8 +8,6 @@ import * as createDebug from 'debug';
 import * as moment from 'moment';
 // tslint:disable-next-line:no-require-imports no-var-requires
 require('moment-timezone');
-// import * as request from 'request-promise-native';
-import * as util from 'util';
 
 import * as LINE from '../../../line';
 
@@ -99,12 +97,20 @@ async function pushTransactionDetails(userId: string, orderNumber: string) {
         'data.transactionId': transaction.id
     }).exec().then((docs) => docs.map((doc) => doc.toObject()));
 
-    // タスクの実行日時を調べる
-    let taskStrs = tasks.map((task) => {
+    // 取引に関するイベント
+    const transactionEvents: {
+        name: string;
+        occurDate?: Date;
+    }[] = [
+            { name: '開始', occurDate: transaction.startDate },
+            { name: '確定', occurDate: transaction.endDate }
+        ];
+
+    tasks.forEach((task) => {
         let taskNameStr = '???';
         switch (task.name) {
             case ttts.factory.taskName.SettleSeatReservation:
-                taskNameStr = '本予約';
+                taskNameStr = '予約作成';
                 break;
             case ttts.factory.taskName.SettleCreditCard:
                 taskNameStr = '売上';
@@ -116,17 +122,20 @@ async function pushTransactionDetails(userId: string, orderNumber: string) {
                 break;
         }
 
-        return util.format(
-            '%s %s',
-            (task.status === ttts.factory.taskStatus.Executed && task.lastTriedAt !== null)
-                ? moment(task.lastTriedAt).format('YYYY-MM-DD HH:mm:ss')
-                : '---------- --:--:--',
-            taskNameStr
-        );
-    }).join('\n');
+        const occurDate = (task.status === ttts.factory.taskStatus.Executed && task.lastTriedAt !== null)
+            ? task.lastTriedAt
+            : undefined;
+        transactionEvents.push({
+            name: taskNameStr,
+            occurDate: occurDate
+        });
+    });
 
     if (returnOrderTransaction !== null) {
-        taskStrs += `\n${moment(returnOrderTransaction.endDate).format('YYYY-MM-DD HH:mm:ss')} 返品確定`;
+        transactionEvents.push({
+            name: '返品確定',
+            occurDate: returnOrderTransaction.endDate
+        });
     }
 
     // tslint:disable:max-line-length
@@ -139,9 +148,7 @@ async function pushTransactionDetails(userId: string, orderNumber: string) {
 --------------------
 注文取引状況
 --------------------
-${moment(report.startDate).format('YYYY-MM-DD HH:mm:ss')} 開始
-${moment(report.endDate).format('YYYY-MM-DD HH:mm:ss')} 成立
-${taskStrs}
+${transactionEvents.map((e) => `${(e.occurDate !== undefined) ? moment(e.occurDate).format('YYYY-MM-DD HH:mm:ss') : '---------- --:--:--'} ${e.name}`).join('\n')}
 --------------------
 購入者情報
 --------------------

@@ -47,7 +47,6 @@ function message(event) {
             }
         }
         catch (error) {
-            console.error(error);
             // エラーメッセージ表示
             yield LINE.pushMessage(userId, error.toString());
         }
