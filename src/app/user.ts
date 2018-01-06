@@ -1,11 +1,10 @@
+import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as createDebug from 'debug';
 import * as redis from 'ioredis';
 import * as jwt from 'jsonwebtoken';
 // tslint:disable-next-line:no-require-imports no-var-requires
 const jwkToPem = require('jwk-to-pem');
 import * as request from 'request-promise-native';
-
-import OAuth2client from './auth/oAuth2client';
 
 const debug = createDebug('ttts-line-assistant:user');
 const ISSUER = <string>process.env.API_TOKEN_ISSUER;
@@ -91,13 +90,13 @@ export default class User {
     public payload: IPayload;
     public scopes: string[];
     public accessToken: string;
-    private authClient: OAuth2client;
+    private authClient: tttsapi.auth.OAuth2;
 
     constructor(configurations: IConfigurations) {
         this.userId = configurations.userId;
         this.state = configurations.state;
 
-        this.authClient = new OAuth2client({
+        this.authClient = new tttsapi.auth.OAuth2({
             domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
             clientId: <string>process.env.API_CLIENT_ID,
             clientSecret: <string>process.env.API_CLIENT_SECRET,
@@ -140,8 +139,6 @@ export default class User {
         // 認証情報を取得できればログイン成功
         const credentials = await this.authClient.getToken(code, <string>process.env.API_CODE_VERIFIER);
         debug('credentials published', credentials);
-
-        // auth.setCredentials(credentials);
 
         // tslint:disable-next-line:no-suspicious-comment
         // ログイン状態を保持

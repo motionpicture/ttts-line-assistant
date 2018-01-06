@@ -41,7 +41,6 @@ exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* 
             return;
         }
         // ログインボタンを送信
-        // await LINE.pushMessage(userId, req.user.generateAuthUrl());
         yield request.post({
             simple: false,
             url: LINE.URL_PUSH_MESSAGE,

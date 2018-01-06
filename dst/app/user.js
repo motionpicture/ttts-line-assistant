@@ -8,13 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const createDebug = require("debug");
 const redis = require("ioredis");
 const jwt = require("jsonwebtoken");
 // tslint:disable-next-line:no-require-imports no-var-requires
 const jwkToPem = require('jwk-to-pem');
 const request = require("request-promise-native");
-const oAuth2client_1 = require("./auth/oAuth2client");
 const debug = createDebug('ttts-line-assistant:user');
 const ISSUER = process.env.API_TOKEN_ISSUER;
 let pems;
@@ -39,7 +39,7 @@ class User {
     constructor(configurations) {
         this.userId = configurations.userId;
         this.state = configurations.state;
-        this.authClient = new oAuth2client_1.default({
+        this.authClient = new tttsapi.auth.OAuth2({
             domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
             clientId: process.env.API_CLIENT_ID,
             clientSecret: process.env.API_CLIENT_SECRET,
@@ -79,7 +79,6 @@ class User {
             // 認証情報を取得できればログイン成功
             const credentials = yield this.authClient.getToken(code, process.env.API_CODE_VERIFIER);
             debug('credentials published', credentials);
-            // auth.setCredentials(credentials);
             // tslint:disable-next-line:no-suspicious-comment
             // ログイン状態を保持
             const results = yield redisClient.multi()
