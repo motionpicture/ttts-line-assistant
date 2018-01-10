@@ -2,41 +2,18 @@
 
 # TTTS LINE Messaging APIを使った業務アプリ
 
-LINE Messaging APIは、トークやアカウントに関するイベントに対するウェブフックの仕組みを持っています。
-それを受けるウェブアプリです。
+[![CircleCI](https://circleci.com/gh/motionpicture/ttts-line-assistant.svg?style=svg&circle-token=8173b83b175943355f70bcbccd120ea94879d1be)](https://circleci.com/gh/motionpicture/ttts-line-assistant)
 
-## Getting Started
 
-### インフラ
-基本的にnode.jsのウェブアプリケーション。
-ウェブサーバーとしては、AzureのWebApps or GCPのAppEngine or AWSのelastic beanstalkを想定。
-全てで動くように開発していくことが望ましい。
+## Table of contents
 
-### 言語
-実態としては、linuxあるいはwindows上でのnode.js。プログラミング言語としては、TypeScript。
+* [Usage](#usage)
+* [Code Samples](#code-samples)
+* [Jsdoc](#jsdoc)
+* [License](#license)
+* [Reference](#reference)
 
-* [TypeScript](https://www.typescriptlang.org/)
-
-### 開発方法
-npmでパッケージをインストール。
-
-```shell
-npm install
-```
-* [npm](https://www.npmjs.com/)
-
-typescriptをjavascriptにコンパイル。
-
-```shell
-npm run build -- -w
-```
-
-npmでローカルサーバーを起動。
-
-```shell
-npm start
-```
-
+## Usage
 
 ### Environment variables
 
@@ -64,33 +41,20 @@ npm start
 | `USER_EXPIRES_IN_SECONDS`         | true     |                       | ユーザーセッション保持期間               |
 
 
-## tslint
+## Code Samples
 
-コード品質チェックをtslintで行う。
-* [tslint](https://github.com/palantir/tslint)
-* [tslint-microsoft-contrib](https://github.com/Microsoft/tslint-microsoft-contrib)
+Code sample are [here](https://github.com/motionpicture/ttts-line-assistant/tree/master/example).
 
-`npm run check`でチェック実行。
+## Jsdoc
 
+`npm run doc` emits jsdoc to ./doc.
 
-## パッケージ脆弱性のチェック
+## License
 
-* [nsp](https://www.npmjs.com/package/nsp)
-
-
-## clean
-`npm run clean`で不要なソース削除。
+UNLICENSED
 
 
-## テスト
-`npm test`でテスト実行。
-
-
-## ドキュメント
-`npm run doc`でjsdocが作成されます。
-
-
-## 参考
+## Reference
 
 ### LINE Reference
 
