@@ -44,7 +44,7 @@ class User {
             clientId: process.env.API_CLIENT_ID,
             clientSecret: process.env.API_CLIENT_SECRET,
             redirectUri: `https://${configurations.host}/signIn`,
-            logoutUri: `https://${configurations.host}/signOut`
+            logoutUri: `https://${configurations.host}/logout`
         });
     }
     generateAuthUrl() {
@@ -56,6 +56,9 @@ class User {
             state: this.state,
             codeVerifier: process.env.API_CODE_VERIFIER
         });
+    }
+    generateLogoutUrl() {
+        return this.authClient.generateLogoutUrl();
     }
     isAuthenticated() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -79,7 +82,6 @@ class User {
             // 認証情報を取得できればログイン成功
             const credentials = yield this.authClient.getToken(code, process.env.API_CODE_VERIFIER);
             debug('credentials published', credentials);
-            // tslint:disable-next-line:no-suspicious-comment
             // ログイン状態を保持
             const results = yield redisClient.multi()
                 .set(`token.${this.userId}`, credentials.access_token)
@@ -87,6 +89,11 @@ class User {
                 .exec();
             debug('results:', results);
             return credentials;
+        });
+    }
+    logout() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield redisClient.del(`token.${this.userId}`);
         });
     }
 }

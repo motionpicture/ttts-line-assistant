@@ -7,6 +7,7 @@ import * as express from 'express';
 import * as request from 'request-promise-native';
 
 import * as LINE from '../../line';
+import authentication from '../middlewares/authentication';
 import User from '../user';
 
 const authRouter = express.Router();
@@ -54,6 +55,33 @@ authRouter.get(
 <body onload="location.href='line://'">
 <div style="text-align:center; font-size:400%">
 <h1>Hello ${user.payload.username}.</h1>
+<a href="${location}">Back to LINE.</a>
+</div>
+</body>
+</html>`
+            );
+        } catch (error) {
+            next(error);
+        }
+    });
+
+/**
+ * ログアウト
+ */
+authRouter.get(
+    '/logout',
+    authentication,
+    async (req, res, next) => {
+        try {
+            await req.user.logout();
+
+            const location = 'line://';
+
+            res.send(`
+<html>
+<body onload="location.href='line://'">
+<div style="text-align:center; font-size:400%">
+<h1>Logged out.</h1>
 <a href="${location}">Back to LINE.</a>
 </div>
 </body>

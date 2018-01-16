@@ -101,7 +101,7 @@ export default class User {
             clientId: <string>process.env.API_CLIENT_ID,
             clientSecret: <string>process.env.API_CLIENT_SECRET,
             redirectUri: `https://${configurations.host}/signIn`,
-            logoutUri: `https://${configurations.host}/signOut`
+            logoutUri: `https://${configurations.host}/logout`
         });
     }
 
@@ -117,6 +117,10 @@ export default class User {
         });
     }
 
+    public generateLogoutUrl() {
+        return this.authClient.generateLogoutUrl();
+    }
+
     public async isAuthenticated() {
         const token = await redisClient.get(`token.${this.userId}`);
         if (token === null) {
@@ -129,7 +133,7 @@ export default class User {
         });
         debug('verified! payload:', payload);
         this.payload = payload;
-        this.scopes = (typeof payload.scope === 'string') ? (<string>payload.scope).split((' ')) : [];
+        this.scopes = (typeof payload.scope === 'string') ? payload.scope.split((' ')) : [];
         this.accessToken = token;
 
         return true;
@@ -140,7 +144,6 @@ export default class User {
         const credentials = await this.authClient.getToken(code, <string>process.env.API_CODE_VERIFIER);
         debug('credentials published', credentials);
 
-        // tslint:disable-next-line:no-suspicious-comment
         // ログイン状態を保持
         const results = await redisClient.multi()
             .set(`token.${this.userId}`, credentials.access_token)
@@ -149,6 +152,10 @@ export default class User {
         debug('results:', results);
 
         return credentials;
+    }
+
+    public async logout() {
+        await redisClient.del(`token.${this.userId}`);
     }
 }
 

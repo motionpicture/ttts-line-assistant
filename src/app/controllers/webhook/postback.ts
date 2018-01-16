@@ -25,7 +25,6 @@ const redisClient = ttts.redis.createClient({
 /**
  * 購入番号で取引を検索する
  * @export
- * @function
  * @memberof app.controllers.webhook.postback
  */
 export async function searchTransactionByPaymentNo(userId: string, paymentNo: string, performanceDate: string) {
@@ -107,7 +106,7 @@ async function pushTransactionDetails(userId: string, orderNumber: string) {
         ];
 
     tasks.forEach((task) => {
-        let taskNameStr = '???';
+        let taskNameStr = task.name.toString();
         switch (task.name) {
             case ttts.factory.taskName.SettleSeatReservation:
                 taskNameStr = '予約作成';
@@ -118,8 +117,10 @@ async function pushTransactionDetails(userId: string, orderNumber: string) {
             case ttts.factory.taskName.SendEmailNotification:
                 taskNameStr = 'メール送信';
                 break;
-            default:
+            case ttts.factory.taskName.CreateOrder:
+                taskNameStr = '注文作成';
                 break;
+            default:
         }
 
         const occurDate = (task.status === ttts.factory.taskStatus.Executed && task.lastTriedAt !== null)

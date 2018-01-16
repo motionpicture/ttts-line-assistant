@@ -5,8 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
 ### Added
+- ログアウトエンドポイントを追加。
 
 ### Changed
+- 取引に対するタスク名表記を調整。
 
 ### Deprecated
 

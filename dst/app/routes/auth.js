@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const request = require("request-promise-native");
 const LINE = require("../../line");
+const authentication_1 = require("../middlewares/authentication");
 const user_1 = require("../user");
 const authRouter = express.Router();
 /**
@@ -55,6 +56,27 @@ authRouter.get('/signIn', (req, res, next) => __awaiter(this, void 0, void 0, fu
 <body onload="location.href='line://'">
 <div style="text-align:center; font-size:400%">
 <h1>Hello ${user.payload.username}.</h1>
+<a href="${location}">Back to LINE.</a>
+</div>
+</body>
+</html>`);
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+/**
+ * ログアウト
+ */
+authRouter.get('/logout', authentication_1.default, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    try {
+        yield req.user.logout();
+        const location = 'line://';
+        res.send(`
+<html>
+<body onload="location.href='line://'">
+<div style="text-align:center; font-size:400%">
+<h1>Logged out.</h1>
 <a href="${location}">Back to LINE.</a>
 </div>
 </body>

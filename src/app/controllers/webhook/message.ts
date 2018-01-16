@@ -9,6 +9,7 @@ import * as moment from 'moment';
 import * as request from 'request-promise-native';
 
 import * as LINE from '../../../line';
+import User from '../../user';
 
 const debug = createDebug('ttts-line-assistant:controller:webhook:message');
 
@@ -21,13 +22,17 @@ const debug = createDebug('ttts-line-assistant:controller:webhook:message');
 export async function pushHowToUse(userId: string) {
     // tslint:disable-next-line:no-multiline-string
     const text = `How to use
-******** new! ********
-******** new! ********
 --------------------
 取引照会
 --------------------
 [購入番号]を入力
-例:810000`;
+例:810000
+
+--------------------
+logout
+--------------------
+'logout'と入力
+`;
 
     await LINE.pushMessage(userId, text);
 }
@@ -184,4 +189,34 @@ export async function publishURI4transactionsCSV(userId: string, dateFrom: strin
     // })();
 
     // await LINE.pushMessage(userId, `download -> ${sasUrl} `);
+}
+
+export async function logout(user: User) {
+    // ログインボタンを送信
+    await request.post({
+        simple: false,
+        url: LINE.URL_PUSH_MESSAGE,
+        auth: { bearer: <string>process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+        json: true,
+        body: {
+            to: user.userId,
+            messages: [
+                {
+                    type: 'template',
+                    altText: 'ログアウトボタン',
+                    template: {
+                        type: 'buttons',
+                        text: '本当にログアウトしますか？',
+                        actions: [
+                            {
+                                type: 'uri',
+                                label: 'Log out',
+                                uri: user.generateLogoutUrl()
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
 }

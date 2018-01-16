@@ -28,13 +28,17 @@ function pushHowToUse(userId) {
     return __awaiter(this, void 0, void 0, function* () {
         // tslint:disable-next-line:no-multiline-string
         const text = `How to use
-******** new! ********
-******** new! ********
 --------------------
 取引照会
 --------------------
 [購入番号]を入力
-例:810000`;
+例:810000
+
+--------------------
+logout
+--------------------
+'logout'と入力
+`;
         yield LINE.pushMessage(userId, text);
     });
 }
@@ -189,3 +193,35 @@ function publishURI4transactionsCSV(userId, dateFrom, dateThrough) {
     });
 }
 exports.publishURI4transactionsCSV = publishURI4transactionsCSV;
+function logout(user) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // ログインボタンを送信
+        yield request.post({
+            simple: false,
+            url: LINE.URL_PUSH_MESSAGE,
+            auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+            json: true,
+            body: {
+                to: user.userId,
+                messages: [
+                    {
+                        type: 'template',
+                        altText: 'ログアウトボタン',
+                        template: {
+                            type: 'buttons',
+                            text: '本当にログアウトしますか？',
+                            actions: [
+                                {
+                                    type: 'uri',
+                                    label: 'Log out',
+                                    uri: user.generateLogoutUrl()
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        });
+    });
+}
+exports.logout = logout;
