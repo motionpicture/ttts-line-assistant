@@ -70,17 +70,22 @@ authRouter.get('/signIn', (req, res, next) => __awaiter(this, void 0, void 0, fu
  */
 authRouter.get('/logout', authentication_1.default, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     try {
+        // アプリケーション側でログアウト後、Cognito側ログアウトへリダイレクト
+        const redirect = req.user.generateLogoutUrl();
         yield req.user.logout();
-        const location = 'line://';
-        res.send(`
-<html>
-<body onload="location.href='line://'">
-<div style="text-align:center; font-size:400%">
-<h1>Logged out.</h1>
-<a href="${location}">Back to LINE.</a>
-</div>
-</body>
-</html>`);
+        yield LINE.pushMessage(req.user.userId, 'Logged out.');
+        res.redirect(redirect);
+        //             const location = 'line://';
+        //             res.send(`
+        // <html>
+        // <body onload="location.href='line://'">
+        // <div style="text-align:center; font-size:400%">
+        // <h1>Logged out.</h1>
+        // <a href="${location}">Back to LINE.</a>
+        // </div>
+        // </body>
+        // </html>`
+        //             );
     }
     catch (error) {
         next(error);
