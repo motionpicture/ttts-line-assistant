@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const request = require("request-promise-native");
 const LINE = require("../../line");
-const authentication_1 = require("../middlewares/authentication");
 const user_1 = require("../user");
 const authRouter = express.Router();
 /**
@@ -68,24 +67,9 @@ authRouter.get('/signIn', (req, res, next) => __awaiter(this, void 0, void 0, fu
 /**
  * ログアウト
  */
-authRouter.get('/logout', authentication_1.default, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+authRouter.get('/logout', (__, res, next) => __awaiter(this, void 0, void 0, function* () {
     try {
-        // アプリケーション側でログアウト後、Cognito側ログアウトへリダイレクト
-        const redirect = req.user.authClient.generateLogoutUrl();
-        yield req.user.logout();
-        yield LINE.pushMessage(req.user.userId, 'Logged out.');
-        res.redirect(redirect);
-        //             const location = 'line://';
-        //             res.send(`
-        // <html>
-        // <body onload="location.href='line://'">
-        // <div style="text-align:center; font-size:400%">
-        // <h1>Logged out.</h1>
-        // <a href="${location}">Back to LINE.</a>
-        // </div>
-        // </body>
-        // </html>`
-        //             );
+        res.end();
     }
     catch (error) {
         next(error);

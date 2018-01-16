@@ -192,31 +192,41 @@ export async function publishURI4transactionsCSV(userId: string, dateFrom: strin
 }
 
 export async function logout(user: User) {
-    // ログインボタンを送信
-    await request.post({
-        simple: false,
-        url: LINE.URL_PUSH_MESSAGE,
-        auth: { bearer: <string>process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
-        json: true,
-        body: {
-            to: user.userId,
-            messages: [
-                {
-                    type: 'template',
-                    altText: 'ログアウトボタン',
-                    template: {
-                        type: 'buttons',
-                        text: '本当にログアウトしますか？',
-                        actions: [
-                            {
-                                type: 'uri',
-                                label: 'Log out',
-                                uri: user.generateLogoutUrl()
-                            }
-                        ]
-                    }
-                }
-            ]
-        }
-    });
+    await user.logout();
+
+    // イベントを強制的に再送信
+    try {
+        await request.get(user.generateLogoutUrl());
+    } catch (error) {
+        // no op
+    }
+
+    await LINE.pushMessage(user.userId, 'Logged out.');
+
+    // await request.post({
+    //     simple: false,
+    //     url: LINE.URL_PUSH_MESSAGE,
+    //     auth: { bearer: <string>process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+    //     json: true,
+    //     body: {
+    //         to: user.userId,
+    //         messages: [
+    //             {
+    //                 type: 'template',
+    //                 altText: 'ログアウトボタン',
+    //                 template: {
+    //                     type: 'buttons',
+    //                     text: '本当にログアウトしますか？',
+    //                     actions: [
+    //                         {
+    //                             type: 'uri',
+    //                             label: 'Log out',
+    //                             uri: user.generateLogoutUrl()
+    //                         }
+    //                     ]
+    //                 }
+    //             }
+    //         ]
+    //     }
+    // });
 }

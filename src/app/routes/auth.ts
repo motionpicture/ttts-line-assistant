@@ -7,7 +7,6 @@ import * as express from 'express';
 import * as request from 'request-promise-native';
 
 import * as LINE from '../../line';
-import authentication from '../middlewares/authentication';
 import User from '../user';
 
 const authRouter = express.Router();
@@ -70,29 +69,9 @@ authRouter.get(
  */
 authRouter.get(
     '/logout',
-    authentication,
-    async (req, res, next) => {
+    async (__, res, next) => {
         try {
-            // アプリケーション側でログアウト後、Cognito側ログアウトへリダイレクト
-            const redirect = req.user.authClient.generateLogoutUrl();
-            await req.user.logout();
-
-            await LINE.pushMessage(req.user.userId, 'Logged out.');
-
-            res.redirect(redirect);
-
-            //             const location = 'line://';
-
-            //             res.send(`
-            // <html>
-            // <body onload="location.href='line://'">
-            // <div style="text-align:center; font-size:400%">
-            // <h1>Logged out.</h1>
-            // <a href="${location}">Back to LINE.</a>
-            // </div>
-            // </body>
-            // </html>`
-            //             );
+            res.end();
         } catch (error) {
             next(error);
         }

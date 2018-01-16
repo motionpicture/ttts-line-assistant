@@ -60,7 +60,7 @@ class User {
         });
     }
     generateLogoutUrl() {
-        return `https://${this.host}/logout`;
+        return this.authClient.generateLogoutUrl();
     }
     isAuthenticated() {
         return __awaiter(this, void 0, void 0, function* () {

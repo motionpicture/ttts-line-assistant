@@ -91,7 +91,7 @@ export default class User {
     public payload: IPayload;
     public scopes: string[];
     public accessToken: string;
-    public authClient: tttsapi.auth.OAuth2;
+    private authClient: tttsapi.auth.OAuth2;
 
     constructor(configurations: IConfigurations) {
         this.host = configurations.host;
@@ -121,7 +121,7 @@ export default class User {
     }
 
     public generateLogoutUrl() {
-        return `https://${this.host}/logout`;
+        return this.authClient.generateLogoutUrl();
     }
 
     public async isAuthenticated() {
