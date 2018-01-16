@@ -71,7 +71,7 @@ authRouter.get('/signIn', (req, res, next) => __awaiter(this, void 0, void 0, fu
 authRouter.get('/logout', authentication_1.default, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     try {
         // アプリケーション側でログアウト後、Cognito側ログアウトへリダイレクト
-        const redirect = req.user.generateLogoutUrl();
+        const redirect = req.user.authClient.generateLogoutUrl();
         yield req.user.logout();
         yield LINE.pushMessage(req.user.userId, 'Logged out.');
         res.redirect(redirect);

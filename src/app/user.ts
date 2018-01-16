@@ -85,14 +85,16 @@ const EXPIRES_IN_SECONDS = parseInt(<string>process.env.USER_EXPIRES_IN_SECONDS,
  * @see https://aws.amazon.com/blogs/mobile/integrating-amazon-cognito-user-pools-with-api-gateway/
  */
 export default class User {
+    public host: string;
     public state: string;
     public userId: string;
     public payload: IPayload;
     public scopes: string[];
     public accessToken: string;
-    private authClient: tttsapi.auth.OAuth2;
+    public authClient: tttsapi.auth.OAuth2;
 
     constructor(configurations: IConfigurations) {
+        this.host = configurations.host;
         this.userId = configurations.userId;
         this.state = configurations.state;
 
@@ -119,7 +121,7 @@ export default class User {
     }
 
     public generateLogoutUrl() {
-        return this.authClient.generateLogoutUrl();
+        return `https://${this.host}/logout`;
     }
 
     public async isAuthenticated() {

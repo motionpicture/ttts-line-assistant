@@ -37,6 +37,7 @@ const EXPIRES_IN_SECONDS = parseInt(process.env.USER_EXPIRES_IN_SECONDS, 10);
  */
 class User {
     constructor(configurations) {
+        this.host = configurations.host;
         this.userId = configurations.userId;
         this.state = configurations.state;
         this.authClient = new tttsapi.auth.OAuth2({
@@ -59,7 +60,7 @@ class User {
         });
     }
     generateLogoutUrl() {
-        return this.authClient.generateLogoutUrl();
+        return `https://${this.host}/logout`;
     }
     isAuthenticated() {
         return __awaiter(this, void 0, void 0, function* () {
