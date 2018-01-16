@@ -103,8 +103,7 @@ export default class User {
             clientId: <string>process.env.API_CLIENT_ID,
             clientSecret: <string>process.env.API_CLIENT_SECRET,
             redirectUri: `https://${configurations.host}/signIn`,
-            logoutUri: 'line://'
-            // logoutUri: `https://${configurations.host}/logout`
+            logoutUri: `https://${configurations.host}/logout?userId=${this.userId}`
         });
     }
 
