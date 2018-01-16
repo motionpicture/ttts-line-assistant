@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const http_status_1 = require("http-status");
 exports.default = (err, __, res, next) => {
+    console.error(err);
     if (res.headersSent) {
         next(err);
         return;
