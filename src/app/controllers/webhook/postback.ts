@@ -34,6 +34,7 @@ export async function searchTransactionByPaymentNo(userId: string, paymentNo: st
     const transactionAdapter = new ttts.repository.Transaction(ttts.mongoose.connection);
     await transactionAdapter.transactionModel.findOne(
         {
+            typeOf: ttts.factory.transactionType.PlaceOrder,
             'result.order.orderInquiryKey.performanceDay': moment(`${performanceDate}T00:00:00+09:00`).tz('Asia/Tokyo').format('YYYYMMDD'),
             'result.order.orderInquiryKey.paymentNo': paymentNo
         },

@@ -38,6 +38,7 @@ function searchTransactionByPaymentNo(userId, paymentNo, performanceDate) {
         // 取引検索
         const transactionAdapter = new ttts.repository.Transaction(ttts.mongoose.connection);
         yield transactionAdapter.transactionModel.findOne({
+            typeOf: ttts.factory.transactionType.PlaceOrder,
             'result.order.orderInquiryKey.performanceDay': moment(`${performanceDate}T00:00:00+09:00`).tz('Asia/Tokyo').format('YYYYMMDD'),
             'result.order.orderInquiryKey.paymentNo': paymentNo
         }, 'result').exec().then((doc) => __awaiter(this, void 0, void 0, function* () {

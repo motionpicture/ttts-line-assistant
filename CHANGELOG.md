@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 - 取引に対するタスク名表記を調整。
+- 取引照会のパフォーマンス改善。
 
 ### Deprecated
 

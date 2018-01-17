@@ -8,9 +8,9 @@ request.post(
             events: [
                 {
                     postback: {
-                        data: 'action=searchTransactionByPaymentNo&paymentNo=502000',
+                        data: 'action=searchTransactionByPaymentNo&paymentNo=879203',
                         params: {
-                            date: '2018-01-18'
+                            date: '2018-01-17'
                         }
                     },
                     replyToken: '26d0dd0923a94583871ecd7e6efec8e2',
