@@ -21,7 +21,7 @@ const debug = createDebug('ttts-line-assistant:controller:webhook');
 /**
  * メッセージが送信されたことを示すEvent Objectです。
  */
-function message(event) {
+function message(event, user) {
     return __awaiter(this, void 0, void 0, function* () {
         const messageText = event.message.text;
         const userId = event.source.userId;
@@ -30,6 +30,10 @@ function message(event) {
                 // [購入番号]で検索
                 case /^\d{6}$/.test(messageText):
                     yield MessageController.askReservationEventDate(userId, messageText);
+                    break;
+                // ログアウト
+                case /^logout$/.test(messageText):
+                    yield MessageController.logout(user);
                     break;
                 // 取引csv要求
                 // case /^csv$/.test(messageText):
@@ -43,7 +47,6 @@ function message(event) {
                 default:
                     // 予約照会方法をアドバイス
                     yield MessageController.pushHowToUse(userId);
-                    break;
             }
         }
         catch (error) {
@@ -77,7 +80,6 @@ function postback(event) {
                     yield PostbackController.searchTransactionsByDate(userId, event.postback.params.date);
                     break;
                 default:
-                    break;
             }
         }
         catch (error) {

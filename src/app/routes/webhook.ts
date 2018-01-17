@@ -25,7 +25,7 @@ webhookRouter.all(
             if (event !== undefined) {
                 switch (event.type) {
                     case 'message':
-                        await WebhookController.message(event);
+                        await WebhookController.message(event, req.user);
                         break;
 
                     case 'postback':
@@ -53,7 +53,6 @@ webhookRouter.all(
                         break;
 
                     default:
-                        break;
                 }
             }
         } catch (error) {

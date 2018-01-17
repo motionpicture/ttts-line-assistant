@@ -64,4 +64,32 @@ authRouter.get('/signIn', (req, res, next) => __awaiter(this, void 0, void 0, fu
         next(error);
     }
 }));
+/**
+ * ログアウト
+ */
+authRouter.get('/logout', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    try {
+        const user = new user_1.default({
+            host: req.hostname,
+            userId: req.query.userId,
+            state: ''
+        });
+        // アプリケーション側でログアウト
+        yield user.logout();
+        yield LINE.pushMessage(req.user.userId, 'Logged out.');
+        const location = 'line://';
+        res.send(`
+<html>
+<body onload="location.href='line://'">
+<div style="text-align:center; font-size:400%">
+<h1>Logged out.</h1>
+<a href="${location}">Back to LINE.</a>
+</div>
+</body>
+</html>`);
+    }
+    catch (error) {
+        next(error);
+    }
+}));
 exports.default = authRouter;

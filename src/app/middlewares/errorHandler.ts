@@ -8,6 +8,7 @@ import { NextFunction, Request, Response } from 'express';
 import { BAD_REQUEST, INTERNAL_SERVER_ERROR } from 'http-status';
 
 export default (err: any, __: Request, res: Response, next: NextFunction) => {
+    console.error(err);
     if (res.headersSent) {
         next(err);
 

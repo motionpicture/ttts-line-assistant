@@ -7,6 +7,7 @@ import * as createDebug from 'debug';
 import * as querystring from 'querystring';
 
 import * as LINE from '../../line';
+import User from '../user';
 import * as MessageController from './webhook/message';
 import * as PostbackController from './webhook/postback';
 
@@ -15,7 +16,7 @@ const debug = createDebug('ttts-line-assistant:controller:webhook');
 /**
  * メッセージが送信されたことを示すEvent Objectです。
  */
-export async function message(event: LINE.IWebhookEvent) {
+export async function message(event: LINE.IWebhookEvent, user: User) {
     const messageText: string = event.message.text;
     const userId = event.source.userId;
 
@@ -24,6 +25,11 @@ export async function message(event: LINE.IWebhookEvent) {
             // [購入番号]で検索
             case /^\d{6}$/.test(messageText):
                 await MessageController.askReservationEventDate(userId, messageText);
+                break;
+
+            // ログアウト
+            case /^logout$/.test(messageText):
+                await MessageController.logout(user);
                 break;
 
             // 取引csv要求
@@ -40,7 +46,6 @@ export async function message(event: LINE.IWebhookEvent) {
             default:
                 // 予約照会方法をアドバイス
                 await MessageController.pushHowToUse(userId);
-                break;
         }
     } catch (error) {
         // エラーメッセージ表示
@@ -76,7 +81,6 @@ export async function postback(event: LINE.IWebhookEvent) {
                 break;
 
             default:
-                break;
         }
     } catch (error) {
         console.error(error);

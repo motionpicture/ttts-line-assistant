@@ -64,4 +64,38 @@ authRouter.get(
         }
     });
 
+/**
+ * ログアウト
+ */
+authRouter.get(
+    '/logout',
+    async (req, res, next) => {
+        try {
+            const user = new User({
+                host: req.hostname,
+                userId: req.query.userId,
+                state: ''
+            });
+
+            // アプリケーション側でログアウト
+            await user.logout();
+            await LINE.pushMessage(req.user.userId, 'Logged out.');
+
+            const location = 'line://';
+
+            res.send(`
+<html>
+<body onload="location.href='line://'">
+<div style="text-align:center; font-size:400%">
+<h1>Logged out.</h1>
+<a href="${location}">Back to LINE.</a>
+</div>
+</body>
+</html>`
+            );
+        } catch (error) {
+            next(error);
+        }
+    });
+
 export default authRouter;
