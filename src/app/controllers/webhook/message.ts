@@ -3,7 +3,7 @@
  * @namespace app.controllers.webhook.message
  */
 
-// import * as ttts from '@motionpicture/ttts-domain';
+import * as ttts from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
 import * as moment from 'moment';
 import * as request from 'request-promise-native';
@@ -27,6 +27,11 @@ export async function pushHowToUse(userId: string) {
 --------------------
 [購入番号]を入力
 例:810000
+
+--------------------
+取引CSVダウンロード
+--------------------
+'csv'と入力
 
 --------------------
 logout
@@ -168,27 +173,26 @@ export async function askFromWhenAndToWhen(userId: string) {
  */
 export async function publishURI4transactionsCSV(userId: string, dateFrom: string, dateThrough: string) {
     await LINE.pushMessage(userId, `${dateFrom}-${dateThrough}の取引を検索しています...`);
-    await LINE.pushMessage(userId, 'implementing...');
 
-    // const startFrom = moment(`${dateFrom}T00:00:00+09:00`, 'YYYYMMDDThh:mm:ssZ');
-    // const startThrough = moment(`${dateThrough}T00:00:00+09:00`, 'YYYYMMDDThh:mm:ssZ').add(1, 'day');
+    const startFrom = moment(`${dateFrom}T00:00:00+09:00`, 'YYYYMMDDThh:mm:ssZ');
+    const startThrough = moment(`${dateThrough}T00:00:00+09:00`, 'YYYYMMDDThh:mm:ssZ').add(1, 'day');
 
-    // const csv = await ttts.service.transaction.placeOrder.download(
-    //     {
-    //         startFrom: startFrom.toDate(),
-    //         startThrough: startThrough.toDate()
-    //     },
-    //     'csv'
-    // )(new ttts.repository.Transaction(ttts.mongoose.connection));
+    const csv = await ttts.service.transaction.placeOrder.download(
+        {
+            startFrom: startFrom.toDate(),
+            startThrough: startThrough.toDate()
+        },
+        'csv'
+    )(new ttts.repository.Transaction(ttts.mongoose.connection));
 
-    // await LINE.pushMessage(userId, 'csvを作成しています...');
+    await LINE.pushMessage(userId, 'csvを作成しています...');
 
-    // const sasUrl = await ttts.service.util.uploadFile({
-    //     fileName: `ttts-line-assistant-transactions-${moment().format('YYYYMMDDHHmmss')}.csv`,
-    //     text: csv
-    // })();
+    const sasUrl = await ttts.service.util.uploadFile({
+        fileName: `ttts-line-assistant-transactions-${moment().format('YYYYMMDDHHmmss')}.csv`,
+        text: csv
+    })();
 
-    // await LINE.pushMessage(userId, `download -> ${sasUrl} `);
+    await LINE.pushMessage(userId, `download -> ${sasUrl} `);
 }
 
 export async function logout(user: User) {

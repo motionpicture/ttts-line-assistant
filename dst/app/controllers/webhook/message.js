@@ -12,7 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// import * as ttts from '@motionpicture/ttts-domain';
+const ttts = require("@motionpicture/ttts-domain");
 const createDebug = require("debug");
 const moment = require("moment");
 const request = require("request-promise-native");
@@ -33,6 +33,11 @@ function pushHowToUse(userId) {
 --------------------
 [購入番号]を入力
 例:810000
+
+--------------------
+取引CSVダウンロード
+--------------------
+'csv'と入力
 
 --------------------
 logout
@@ -174,22 +179,18 @@ exports.askFromWhenAndToWhen = askFromWhenAndToWhen;
 function publishURI4transactionsCSV(userId, dateFrom, dateThrough) {
     return __awaiter(this, void 0, void 0, function* () {
         yield LINE.pushMessage(userId, `${dateFrom}-${dateThrough}の取引を検索しています...`);
-        yield LINE.pushMessage(userId, 'implementing...');
-        // const startFrom = moment(`${dateFrom}T00:00:00+09:00`, 'YYYYMMDDThh:mm:ssZ');
-        // const startThrough = moment(`${dateThrough}T00:00:00+09:00`, 'YYYYMMDDThh:mm:ssZ').add(1, 'day');
-        // const csv = await ttts.service.transaction.placeOrder.download(
-        //     {
-        //         startFrom: startFrom.toDate(),
-        //         startThrough: startThrough.toDate()
-        //     },
-        //     'csv'
-        // )(new ttts.repository.Transaction(ttts.mongoose.connection));
-        // await LINE.pushMessage(userId, 'csvを作成しています...');
-        // const sasUrl = await ttts.service.util.uploadFile({
-        //     fileName: `ttts-line-assistant-transactions-${moment().format('YYYYMMDDHHmmss')}.csv`,
-        //     text: csv
-        // })();
-        // await LINE.pushMessage(userId, `download -> ${sasUrl} `);
+        const startFrom = moment(`${dateFrom}T00:00:00+09:00`, 'YYYYMMDDThh:mm:ssZ');
+        const startThrough = moment(`${dateThrough}T00:00:00+09:00`, 'YYYYMMDDThh:mm:ssZ').add(1, 'day');
+        const csv = yield ttts.service.transaction.placeOrder.download({
+            startFrom: startFrom.toDate(),
+            startThrough: startThrough.toDate()
+        }, 'csv')(new ttts.repository.Transaction(ttts.mongoose.connection));
+        yield LINE.pushMessage(userId, 'csvを作成しています...');
+        const sasUrl = yield ttts.service.util.uploadFile({
+            fileName: `ttts-line-assistant-transactions-${moment().format('YYYYMMDDHHmmss')}.csv`,
+            text: csv
+        })();
+        yield LINE.pushMessage(userId, `download -> ${sasUrl} `);
     });
 }
 exports.publishURI4transactionsCSV = publishURI4transactionsCSV;

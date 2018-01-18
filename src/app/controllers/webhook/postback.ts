@@ -272,27 +272,26 @@ export async function settleSeatReservation(userId: string, transactionId: strin
  * @param {string} userId
  * @param {string} date YYYY-MM-DD形式
  */
-export async function searchTransactionsByDate(userId: string, __: string) {
-    await LINE.pushMessage(userId, 'implementing...');
-    // await LINE.pushMessage(userId, `${date}の取引を検索しています...`);
+export async function searchTransactionsByDate(userId: string, date: string) {
+    await LINE.pushMessage(userId, `${date}の取引を検索しています...`);
 
-    // const startFrom = moment(`${date}T00:00:00+09:00`);
-    // const startThrough = moment(`${date}T00:00:00+09:00`).add(1, 'day');
+    const startFrom = moment(`${date}T00:00:00+09:00`);
+    const startThrough = moment(`${date}T00:00:00+09:00`).add(1, 'day');
 
-    // const csv = await ttts.service.transaction.placeOrder.download(
-    //     {
-    //         startFrom: startFrom.toDate(),
-    //         startThrough: startThrough.toDate()
-    //     },
-    //     'csv'
-    // )(new ttts.repository.Transaction(ttts.mongoose.connection));
+    const csv = await ttts.service.transaction.placeOrder.download(
+        {
+            startFrom: startFrom.toDate(),
+            startThrough: startThrough.toDate()
+        },
+        'csv'
+    )(new ttts.repository.Transaction(ttts.mongoose.connection));
 
-    // await LINE.pushMessage(userId, 'csvを作成しています...');
+    await LINE.pushMessage(userId, 'csvを作成しています...');
 
-    // const sasUrl = await ttts.service.util.uploadFile({
-    //     fileName: `ttts-line-assistant-transactions-${moment().format('YYYYMMDDHHmmss')}.csv`,
-    //     text: csv
-    // })();
+    const sasUrl = await ttts.service.util.uploadFile({
+        fileName: `ttts-line-assistant-transactions-${moment().format('YYYYMMDDHHmmss')}.csv`,
+        text: csv
+    })();
 
-    // await LINE.pushMessage(userId, `download -> ${sasUrl} `);
+    await LINE.pushMessage(userId, `download -> ${sasUrl} `);
 }
