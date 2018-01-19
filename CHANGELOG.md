@@ -17,6 +17,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Security
 
 
+## v0.2.0 - 2018-01-19
+### Added
+- csvダウンロード機能を追加。
+
 ## v0.1.0 - 2018-01-17
 ### Added
 - ログアウトエンドポイントを追加。

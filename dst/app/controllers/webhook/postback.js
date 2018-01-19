@@ -252,25 +252,21 @@ exports.settleSeatReservation = settleSeatReservation;
  * @param {string} userId
  * @param {string} date YYYY-MM-DD形式
  */
-function searchTransactionsByDate(userId, __) {
+function searchTransactionsByDate(userId, date) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield LINE.pushMessage(userId, 'implementing...');
-        // await LINE.pushMessage(userId, `${date}の取引を検索しています...`);
-        // const startFrom = moment(`${date}T00:00:00+09:00`);
-        // const startThrough = moment(`${date}T00:00:00+09:00`).add(1, 'day');
-        // const csv = await ttts.service.transaction.placeOrder.download(
-        //     {
-        //         startFrom: startFrom.toDate(),
-        //         startThrough: startThrough.toDate()
-        //     },
-        //     'csv'
-        // )(new ttts.repository.Transaction(ttts.mongoose.connection));
-        // await LINE.pushMessage(userId, 'csvを作成しています...');
-        // const sasUrl = await ttts.service.util.uploadFile({
-        //     fileName: `ttts-line-assistant-transactions-${moment().format('YYYYMMDDHHmmss')}.csv`,
-        //     text: csv
-        // })();
-        // await LINE.pushMessage(userId, `download -> ${sasUrl} `);
+        yield LINE.pushMessage(userId, `${date}の取引を検索しています...`);
+        const startFrom = moment(`${date}T00:00:00+09:00`);
+        const startThrough = moment(`${date}T00:00:00+09:00`).add(1, 'day');
+        const csv = yield ttts.service.transaction.placeOrder.download({
+            startFrom: startFrom.toDate(),
+            startThrough: startThrough.toDate()
+        }, 'csv')(new ttts.repository.Transaction(ttts.mongoose.connection));
+        yield LINE.pushMessage(userId, 'csvを作成しています...');
+        const sasUrl = yield ttts.service.util.uploadFile({
+            fileName: `ttts-line-assistant-transactions-${moment().format('YYYYMMDDHHmmss')}.csv`,
+            text: csv
+        })();
+        yield LINE.pushMessage(userId, `download -> ${sasUrl} `);
     });
 }
 exports.searchTransactionsByDate = searchTransactionsByDate;

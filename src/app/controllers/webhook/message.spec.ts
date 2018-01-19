@@ -46,7 +46,7 @@ describe('csvダウンロード', () => {
                     {
                         message: {
                             id: '5647872913345',
-                            text: '20170914-20170914',
+                            text: '20180118-20180118',
                             type: 'text'
                         },
                         replyToken: '26d0dd0923a94583871ecd7e6efec8e2',

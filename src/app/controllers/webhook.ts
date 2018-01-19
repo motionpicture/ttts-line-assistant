@@ -33,15 +33,15 @@ export async function message(event: LINE.IWebhookEvent, user: User) {
                 break;
 
             // 取引csv要求
-            // case /^csv$/.test(messageText):
-            // await MessageController.askFromWhenAndToWhen(userId);
-            //     break;
+            case /^csv$/.test(messageText):
+                await MessageController.askFromWhenAndToWhen(userId);
+                break;
 
             // 取引csv期間指定
-            // case /^\d{8}-\d{8}$/.test(messageText):
-            //     // tslint:disable-next-line:no-magic-numbers
-            //     await MessageController.publishURI4transactionsCSV(userId, messageText.substr(0, 8), messageText.substr(9, 8));
-            //     break;
+            case /^\d{8}-\d{8}$/.test(messageText):
+                // tslint:disable-next-line:no-magic-numbers
+                await MessageController.publishURI4transactionsCSV(userId, messageText.substr(0, 8), messageText.substr(9, 8));
+                break;
 
             default:
                 // 予約照会方法をアドバイス
