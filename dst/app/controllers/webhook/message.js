@@ -128,7 +128,7 @@ function askReservationEventDate(userId, paymentNo) {
                     }
                 ]
             }
-        });
+        }).promise();
     });
 }
 exports.askReservationEventDate = askReservationEventDate;
@@ -166,7 +166,7 @@ function askFromWhenAndToWhen(userId) {
                     }
                 ]
             }
-        });
+        }).promise();
     });
 }
 exports.askFromWhenAndToWhen = askFromWhenAndToWhen;
@@ -214,14 +214,14 @@ function logout(user) {
                                 {
                                     type: 'uri',
                                     label: 'Log out',
-                                    uri: user.generateLogoutUrl()
+                                    uri: `https://${user.host}/logout?userId=${user.userId}`
                                 }
                             ]
                         }
                     }
                 ]
             }
-        });
+        }).promise();
     });
 }
 exports.logout = logout;

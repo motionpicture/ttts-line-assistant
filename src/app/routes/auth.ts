@@ -39,7 +39,7 @@ authRouter.get(
                         'Content-Type': 'application/json'
                     },
                     form: body
-                });
+                }).promise();
             } catch (error) {
                 await LINE.pushMessage(event.source.userId, error.message);
             }
@@ -71,19 +71,23 @@ authRouter.get(
     '/logout',
     async (req, res, next) => {
         try {
-            const user = new User({
-                host: req.hostname,
-                userId: req.query.userId,
-                state: ''
-            });
+            if (req.query.userId !== undefined) {
+                const user = new User({
+                    host: req.hostname,
+                    userId: req.query.userId,
+                    state: ''
+                });
 
-            // アプリケーション側でログアウト
-            await user.logout();
-            await LINE.pushMessage(req.user.userId, 'Logged out.');
+                // アプリケーション側でログアウト
+                await user.logout();
+                await LINE.pushMessage(user.userId, 'Logged out.');
 
-            const location = 'line://';
+                // Cognitoからもログアウト
+                res.redirect(user.generateLogoutUrl());
+            } else {
+                const location = 'line://';
 
-            res.send(`
+                res.send(`
 <html>
 <body onload="location.href='line://'">
 <div style="text-align:center; font-size:400%">
@@ -92,7 +96,8 @@ authRouter.get(
 </div>
 </body>
 </html>`
-            );
+                );
+            }
         } catch (error) {
             next(error);
         }

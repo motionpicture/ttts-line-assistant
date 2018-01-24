@@ -66,7 +66,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
                     }
                 ]
             }
-        });
+        }).promise();
 
         res.status(OK).send('ok');
     } catch (error) {
