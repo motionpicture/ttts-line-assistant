@@ -77,7 +77,7 @@ authRouter.get('/logout', (req, res, next) => __awaiter(this, void 0, void 0, fu
             });
             // アプリケーション側でログアウト
             yield user.logout();
-            yield LINE.pushMessage(req.user.userId, 'Logged out.');
+            yield LINE.pushMessage(user.userId, 'Logged out.');
             // Cognitoからもログアウト
             res.redirect(user.generateLogoutUrl());
         }

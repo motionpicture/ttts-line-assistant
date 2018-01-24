@@ -80,7 +80,7 @@ authRouter.get(
 
                 // アプリケーション側でログアウト
                 await user.logout();
-                await LINE.pushMessage(req.user.userId, 'Logged out.');
+                await LINE.pushMessage(user.userId, 'Logged out.');
 
                 // Cognitoからもログアウト
                 res.redirect(user.generateLogoutUrl());
