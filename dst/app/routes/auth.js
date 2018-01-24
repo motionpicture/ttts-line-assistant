@@ -41,7 +41,7 @@ authRouter.get('/signIn', (req, res, next) => __awaiter(this, void 0, void 0, fu
                     'Content-Type': 'application/json'
                 },
                 form: body
-            });
+            }).promise();
         }
         catch (error) {
             yield LINE.pushMessage(event.source.userId, error.message);
@@ -69,16 +69,21 @@ authRouter.get('/signIn', (req, res, next) => __awaiter(this, void 0, void 0, fu
  */
 authRouter.get('/logout', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     try {
-        const user = new user_1.default({
-            host: req.hostname,
-            userId: req.query.userId,
-            state: ''
-        });
-        // アプリケーション側でログアウト
-        yield user.logout();
-        yield LINE.pushMessage(req.user.userId, 'Logged out.');
-        const location = 'line://';
-        res.send(`
+        if (req.query.userId !== undefined) {
+            const user = new user_1.default({
+                host: req.hostname,
+                userId: req.query.userId,
+                state: ''
+            });
+            // アプリケーション側でログアウト
+            yield user.logout();
+            yield LINE.pushMessage(req.user.userId, 'Logged out.');
+            // Cognitoからもログアウト
+            res.redirect(user.generateLogoutUrl());
+        }
+        else {
+            const location = 'line://';
+            res.send(`
 <html>
 <body onload="location.href='line://'">
 <div style="text-align:center; font-size:400%">
@@ -87,6 +92,7 @@ authRouter.get('/logout', (req, res, next) => __awaiter(this, void 0, void 0, fu
 </div>
 </body>
 </html>`);
+        }
     }
     catch (error) {
         next(error);

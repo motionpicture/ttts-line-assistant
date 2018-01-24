@@ -45,7 +45,7 @@ class User {
             clientId: process.env.API_CLIENT_ID,
             clientSecret: process.env.API_CLIENT_SECRET,
             redirectUri: `https://${configurations.host}/signIn`,
-            logoutUri: `https://${configurations.host}/logout?userId=${this.userId}`
+            logoutUri: `https://${configurations.host}/logout`
         });
     }
     generateAuthUrl() {

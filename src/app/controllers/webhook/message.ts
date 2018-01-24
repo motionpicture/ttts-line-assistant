@@ -123,7 +123,7 @@ export async function askReservationEventDate(userId: string, paymentNo: string)
                 ]
             }
         }
-    );
+    ).promise();
 }
 
 /**
@@ -162,7 +162,7 @@ export async function askFromWhenAndToWhen(userId: string) {
                 ]
             }
         }
-    );
+    ).promise();
 }
 
 /**
@@ -214,12 +214,12 @@ export async function logout(user: User) {
                             {
                                 type: 'uri',
                                 label: 'Log out',
-                                uri: user.generateLogoutUrl()
+                                uri: `https://${user.host}/logout?userId=${user.userId}`
                             }
                         ]
                     }
                 }
             ]
         }
-    });
+    }).promise();
 }

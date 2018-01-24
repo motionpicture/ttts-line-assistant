@@ -66,7 +66,7 @@ exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* 
                     }
                 ]
             }
-        });
+        }).promise();
         res.status(http_status_1.OK).send('ok');
     }
     catch (error) {
