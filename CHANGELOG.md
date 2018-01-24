@@ -13,10 +13,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Removed
 
 ### Fixed
-- ログアウトボタンの挙動調整。
 
 ### Security
 
+
+## v0.2.1 - 2018-01-24
+### Fixed
+- ログアウトボタンの挙動調整。
 
 ## v0.2.0 - 2018-01-19
 ### Added
